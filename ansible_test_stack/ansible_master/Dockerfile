@@ -7,3 +7,4 @@ RUN yum clean all && \
 RUN mkdir /etc/ansible/
 RUN echo -e '[local]\nlocalhost' > /etc/ansible/hosts
 RUN pip install ansible
+RUN cd ~/ git clone https://github.com/mrgaryg/DockerProjects.git
