@@ -1,0 +1,5 @@
+ipaddress: 10.0.0.10
+ram: 2048
+cpus: 2
+boxname: centos/7
+hostname: default

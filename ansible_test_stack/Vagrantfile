@@ -1,0 +1,67 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+require 'yaml'
+
+# Load up our vagrant config files -- vagrantconfig.yml first
+# _config = YAML.load(File.open(File.join(File.dirname(__FILE__), "vagrantconfig.yml"), File::RDONLY).read)
+# CONF = _config
+
+ENV['VAGRANT_DEFAULT_PROVIDER'] = 'docker'
+ 
+  Vagrant.configure("2") do |config|
+ 
+  config.ssh.insert_key = false
+  config.vm.box_check_update = false
+
+  # The next illustration shows how the c:\temp directory on the Vagrant host is mapped to the /host_temp directory inside my-little-container. 
+  # config.vm.synced_folder "c:/tmp", "/host_temp"
+
+  config.vm.define "ansible-master" do |m|
+    m.vm.provider :docker do |d|
+      d.name = 'ansible-master'
+      d.build_dir = "ansible-master"
+      d.remains_running = true
+      d.vagrant_machine = "dockerhostvm"
+      d.vagrant_vagrantfile = "./DockerHostVagrantfile"
+      d.link("my-little-container:my-friend")
+    end
+  end
+
+  config.vm.define "my-little-container" do |m|
+    m.vm.provider :docker do |d|
+      d.name = 'my-little-container'
+      d.build_dir = "."
+      d.cmd = ["ping", "-c 51", "127.0.0.1"]
+      
+      d.cmd = ["/usr/sbin/apache2ctl","-D", "FOREGROUND"]
+      d.ports = ["8080:80"]
+      d.remains_running = true
+      d.vagrant_machine = "dockerhostvm"
+      d.vagrant_vagrantfile = "./DockerHostVagrantfile"
+    end
+  end
+  config.vm.define "my-tiny-container" do |m|
+    m.vm.provider :docker do |d|
+      d.name = 'my-tiny-container'
+      d.build_dir = "tiny-docker"
+      d.cmd = ["ping", "-c 51", "127.0.0.1"]
+      d.remains_running = true
+      d.vagrant_machine = "dockerhostvm"
+      d.vagrant_vagrantfile = "./DockerHostVagrantfile"
+      d.link("my-little-container:my-friend")
+    end
+  end
+
+
+#  Example of using YAML CONF to specify IP Address and hostname
+#   config.vm.network "private_network", ip: CONF["ipaddress"]
+#   config.vm.hostname = CONF["hostname"]
+#  Example of using YAML CONF to specify boxname, # of cpus, and ram
+#   config.vm.provider "virtualbox" do |v|
+#     config.vm.box = CONF["boxname"]
+#     v.memory = CONF["ram"]
+#     v.cpus = CONF["cpus"]
+#   end
+#   # config.vm.synced_folder ".", "/mnt/docker", type: "nfs", mount_options: ['rw', 'vers=3', 'tcp', 'fsc', 'actimeo=1']
+
+end
