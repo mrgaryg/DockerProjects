@@ -1,0 +1,6 @@
+/blue-green-docker-jenkins/swarm-master.log
+/blue-green-docker-jenkins/ansible/jenkins.retry
+/.idea
+/.vagrant
+/*.iml
+/*.retry
